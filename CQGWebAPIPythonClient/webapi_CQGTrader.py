@@ -108,28 +108,34 @@ class CQGTrader:
            for position_status in server_msg:
              for subscription_id in position_status:
                position_queue.put(subscription_id)
-             for account_id in position_status:
-               position_
-              position_queue.put(position_status)
-              if len(server_msg.pos
-                 position_queue.put(str(server_msg.position_status))
-                 print('position')
-                 print(position_queue.get())
-                 #time.sleep(2)
-              elif len(server_msg.order_status) > 0:
-                 order_queue.put(str(server_msg.order_status))
-                 print('order')
-                 #time.sleep(2)
-              elif len(server_msg.real_time_market_data) > 0:
-                 marketprice_queue.put(str(server_msg.real_time_market_data))
-                 print('marketprice')
-              elif len(server_msg.information_report) > 0:
-                 metadata_queue.put(str(server_msg.information_report))
-                 print('metadata')
-                # time.sleep(2)
-              print(str(server_msg))
-             
-
+               for account_id in position_status:
+                 position_queue.put(account_id)
+               for contract_id in position_status:
+                 position_queue.put(contract_id)
+               for open_position in position_status:
+                 position_queue.put(open_position)
+             print('position')
+           for information_report in server_msg:
+             for id in information_report:
+               metadata_queue.put(id)
+             for status_code in information_report:
+               metadata_queue.put(status_code)
+             for symbol_resolution_report in information_report:
+               for contract_metadata in symbol_resolution_report:
+                 for contract_id in contract_metadata:
+                   metadata_queue.put(contract_id)
+                 for contract_symbol in contract_metadata:
+                   metadata_queue.put(contract_symbol)
+                 for correct_price_scale in contract_metadata:
+                   metadata_queue.put(correct_price_scale)
+                 for display_price_scale in contract_metadata:
+                   metadata_queue.put(display_price_scale)
+                 for description in contract_metadata:
+                   metadata_queue.put(description)
+                 for title in contract_metadata:
+                   metadata_queue.put(title)
+             print('metadata')
+         
     def PlaceOrder(self,contract_id,cond):#委托(买卖)
         client_msg = ClientMsg()
         order_request = client_msg.order_request.add()
