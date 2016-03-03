@@ -103,11 +103,15 @@ class CQGTrader:
     def ServerToQueue(self,metadata_queue,position_queue,order_queue,marketprice_queue):
         while 1:
            opcode,data  = self._connection.recv_data()
-           length = len(data)
-           if length > 0:#为了判断data的归属，应当先进行反序列化,但data本质上并没有变
-              server_msg = ServerMsg()
-              server_msg.ParseFromString(data)
-              if len(server_msg.position_status) > 0:
+           server_msg = ServerMsg()
+           server_msg.ParseFromString(data)
+           for position_status in server_msg:
+             for subscription_id in position_status:
+               position_queue.put(subscription_id)
+             for account_id in position_status:
+               position_
+              position_queue.put(position_status)
+              if len(server_msg.pos
                  position_queue.put(str(server_msg.position_status))
                  print('position')
                  print(position_queue.get())
