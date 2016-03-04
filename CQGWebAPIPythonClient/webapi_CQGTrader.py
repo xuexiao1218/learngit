@@ -7,6 +7,8 @@ metadata_queue = queue.Queue()
 position_queue = queue.Queue()
 order_queue = queue.Queue()
 marketprice_queue = queue.Queue()
+metadata_cond = '1 1 QFAH6'
+position_cond = '1 16873141 1'
 
 class CQGTrader:
     def ApiLogin(self,info):#Api登入
@@ -101,10 +103,8 @@ class CQGTrader:
            print('recv_marketprice')
         if recv_tp == 'order':#委托
            data = order_queue.get()
-           print('recv_order')  
-        server_msg = ServerMsg()
-        server_msg.ParseFromString(data) 
-        print(server_msg)
+           print('recv_order') 
+        print(data)
 
     def ServerToQueue(self,metadata_queue,position_queue,order_queue,marketprice_queue):
         while 1:

@@ -6,8 +6,6 @@ from webapi_CQGTrader import *
 
 host_name = 'wss://demoapi.cqg.com:443'
 info = 'CapitalCC pass WebApiTest python-client'
-metadata_cond = '1 1 QFAH6'
-position_cond = '1 16873141 1'
 
 user = CQGTrader()
 user.ApiLogin(host_name)
@@ -20,4 +18,4 @@ user.Send()
 while 1:
  #user.Recv('position')
 # user.Recv('metadata')
- user.Recv()
+user.Recv()
