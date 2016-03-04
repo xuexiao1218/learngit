@@ -55,7 +55,7 @@ class CQGTrader:
         return False
 
     def Send(self):
-        send_tp = input("type is metadata or position?")
+        send_tp = input("send metadata or position?\n")
         client_msg = ClientMsg()
         if send_tp == 'metadata':#元数据订阅
           cond = metadata_cond
@@ -91,7 +91,7 @@ class CQGTrader:
         self._connection.send(client_msg.SerializeToString(),websocket.ABNF.OPCODE_BINARY) 
 
     def Recv(self):#从队列中取数据
-        recv_tp = input("receive metadata or position?")
+        recv_tp = input("receive metadata or position?\n")
         if recv_tp == 'metadata':#元数据
            data = metadata_queue.get()
            print('recv_metadata')
