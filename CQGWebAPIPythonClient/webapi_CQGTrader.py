@@ -1,7 +1,7 @@
 import websocket
 from webapi_1_pb2 import *
 import time
-import threading,queue
+import threading,queue,sys
 
 metadata_queue = queue.Queue()
 position_queue = queue.Queue()
@@ -52,15 +52,18 @@ class CQGTrader:
         print("User Unlogged\n")
         return False
 
-    def Send(self,send_tp,cond):
+    def Send(self):
+        send_tp = input("type is metadata or position?")
         client_msg = ClientMsg()
         if send_tp == 'metadata':#元数据订阅
+          cond = metadata_cond
           information_request = client_msg.information_request.add()
           information_request.id = int(cond.split()[0])
           information_request.subscribe = int(cond.split()[1])
           information_request.symbol_resolution_request.symbol = cond.split()[2]
           print('send_metadata')
         elif send_tp == 'position':#持仓订阅
+          cond = position_cond
           trade_subscription = client_msg.trade_subscription.add()
           trade_subscription.id = int(cond.split()[0]) 
           trade_subscription.subscription_scope.append(2)
@@ -85,7 +88,8 @@ class CQGTrader:
           print('send_marketprice')
         self._connection.send(client_msg.SerializeToString(),websocket.ABNF.OPCODE_BINARY) 
 
-    def Recv(self,recv_tp):#从队列中取数据
+    def Recv(self):#从队列中取数据
+        recv_tp = input("receive metadata or position?")
         if recv_tp == 'metadata':#元数据
            data = metadata_queue.get()
            print('recv_metadata')
@@ -97,44 +101,30 @@ class CQGTrader:
            print('recv_marketprice')
         if recv_tp == 'order':#委托
            data = order_queue.get()
-           print('recv_order')   
-           print(str(data))
+           print('recv_order')  
+        server_msg = ServerMsg()
+        server_msg.ParseFromString(data) 
+        print(server_msg)
 
     def ServerToQueue(self,metadata_queue,position_queue,order_queue,marketprice_queue):
         while 1:
            opcode,data  = self._connection.recv_data()
            server_msg = ServerMsg()
            server_msg.ParseFromString(data)
-           for position_status in server_msg:
-             for subscription_id in position_status:
-               position_queue.put(subscription_id)
-               for account_id in position_status:
-                 position_queue.put(account_id)
-               for contract_id in position_status:
-                 position_queue.put(contract_id)
-               for open_position in position_status:
-                 position_queue.put(open_position)
-             print('position')
-           for information_report in server_msg:
-             for id in information_report:
-               metadata_queue.put(id)
-             for status_code in information_report:
-               metadata_queue.put(status_code)
-             for symbol_resolution_report in information_report:
-               for contract_metadata in symbol_resolution_report:
-                 for contract_id in contract_metadata:
-                   metadata_queue.put(contract_id)
-                 for contract_symbol in contract_metadata:
-                   metadata_queue.put(contract_symbol)
-                 for correct_price_scale in contract_metadata:
-                   metadata_queue.put(correct_price_scale)
-                 for display_price_scale in contract_metadata:
-                   metadata_queue.put(display_price_scale)
-                 for description in contract_metadata:
-                   metadata_queue.put(description)
-                 for title in contract_metadata:
-                   metadata_queue.put(title)
-             print('metadata')
+           for position_status in server_msg.position_status:
+             position_queue.put(position_status.subscription_id)
+             position_queue.put(position_status.is_snapshot)
+             position_queue.put(position_status.account_id)
+             position_queue.put(position_status.contract_id)
+             for open_position in position_status.open_position:
+               position_queue.put(open_position)
+          # print('position')
+           for information_report in server_msg.information_report:
+             metadata_queue.put(informaiton_report.id)
+             metadata_queue.put(information_report.status_code)
+             metadata = informtion_report.symbol_resolution_report.contract_metadata
+             metadata_queue.put(metadata)
+            # print('metadata')
          
     def PlaceOrder(self,contract_id,cond):#委托(买卖)
         client_msg = ClientMsg()

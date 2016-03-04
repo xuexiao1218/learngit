@@ -14,10 +14,10 @@ user.ApiLogin(host_name)
 user.UserLogin(info)
 
 #user.Send('position',position_cond)
-user.Send('metadata',metadata_cond)
-user.Send('position',position_cond)
+#user.Send('metadata',metadata_cond)
+user.Send()
 
 while 1:
  #user.Recv('position')
- user.Recv('metadata')
- user.Recv('position')
+# user.Recv('metadata')
+ user.Recv()
