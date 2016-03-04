@@ -63,7 +63,7 @@ class CQGTrader:
           information_request.id = int(cond.split()[0])
           information_request.subscribe = int(cond.split()[1])
           information_request.symbol_resolution_request.symbol = cond.split()[2]
-          print('send_metadata')
+          print('元数据订阅')
         elif send_tp == 'position':#持仓订阅
           cond = position_cond
           trade_subscription = client_msg.trade_subscription.add()
@@ -73,7 +73,7 @@ class CQGTrader:
           trade_subscription.account_id = int(cond.split()[1])
           trade_subscription.subscribe = int(cond.split()[2])
           trade_subscription.last_order_update_utc_time = 1
-          print('send_position')
+          print('持仓订阅')
         elif send_tp == 'order':#委托订阅
           trade_subscription = client_msg.trade_subscription.add()
           trade_subscription.id = int(cond.split()[0])
@@ -82,28 +82,24 @@ class CQGTrader:
           trade_subscription.account_id = int(cond.split()[1])
           trade_subscription.subscribe = int(cond.split()[2])
           trade_subscription.last_order_update_utc_time = 1
-          print('send_order')
+          print('委托订阅')
         elif send_tp == 'marketprice':#实时市场数据订阅
           market_data_subscription = client_msg.market_data_subscription.add()
           market_data_subscription.contract_id = int(cond.split()[0])
           market_data_subscription.level = 1
-          print('send_marketprice')
+          print('实时市场数据订阅')
         self._connection.send(client_msg.SerializeToString(),websocket.ABNF.OPCODE_BINARY) 
 
     def Recv(self):#从队列中取数据
         recv_tp = input("receive metadata or position?\n")
         if recv_tp == 'metadata':#元数据
            data = metadata_queue.get()
-           print('recv_metadata')
         if recv_tp == 'position':#持仓
            data = position_queue.get()
-           print('recv_position') 
         if recv_tp == 'marketprice':#行情
            data = marketprice_queue.get()
-           print('recv_marketprice')
         if recv_tp == 'order':#委托
            data = order_queue.get()
-           print('recv_order') 
         print(data)
 
     def ServerToQueue(self,metadata_queue,position_queue,order_queue,marketprice_queue):
@@ -112,17 +108,26 @@ class CQGTrader:
            server_msg = ServerMsg()
            server_msg.ParseFromString(data)
            for position_status in server_msg.position_status:
+            # position_queue.put("subscription_id:\n"+position_status.subscription_id)
+             position_queue.put("subscription_id:\n")
              position_queue.put(position_status.subscription_id)
+             position_queue.put("is_snapshot:\n")
              position_queue.put(position_status.is_snapshot)
+             position_queue.put("account_id:\n")
              position_queue.put(position_status.account_id)
+             position_queue.put("contract_id:\n")
              position_queue.put(position_status.contract_id)
              for open_position in position_status.open_position:
+               position_queue.put("open_position:\n")
                position_queue.put(open_position)
           # print('position')
            for information_report in server_msg.information_report:
-             metadata_queue.put(informaiton_report.id)
+             metadata_queue.put('id:\n')
+             metadata_queue.put(information_report.id)
+             metadata_queue.put('status_code:\n')
              metadata_queue.put(information_report.status_code)
-             metadata = informtion_report.symbol_resolution_report.contract_metadata
+             metadata = information_report.symbol_resolution_report.contract_metadata
+             metadata_queue.put('metadata:\n')
              metadata_queue.put(metadata)
             # print('metadata')
          

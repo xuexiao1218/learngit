@@ -14,6 +14,7 @@ user.UserLogin(info)
 #user.Send('position',position_cond)
 #user.Send('metadata',metadata_cond)
 user.Send()
+user.Send()
 
 while 1:
  #user.Recv('position')
