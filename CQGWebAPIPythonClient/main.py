@@ -16,6 +16,12 @@ user.UserLogin(info)
 user.Send()
 user.Send()
 
+"""
 recv_tp = input('receive metadata or position?\n')
 while 1:
  user.Recv(recv_tp)
+"""
+t2 = threading.Thread(target=user.Recv,args=('metadata',))
+t3 = threading.Thread(target=user.Recv,args=('position',))
+t2.start()
+t3.start()

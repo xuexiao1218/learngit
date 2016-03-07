@@ -92,6 +92,7 @@ class CQGTrader:
 
     def Recv(self,recv_tp):#从队列中取数据
         #recv_tp = input("receive metadata or position?\n")
+      while(1):
         if recv_tp == 'metadata':#元数据
            data = metadata_queue.get()
         if recv_tp == 'position':#持仓
