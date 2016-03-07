@@ -16,7 +16,6 @@ user.UserLogin(info)
 user.Send()
 user.Send()
 
+recv_tp = input('receive metadata or position?\n')
 while 1:
- #user.Recv('position')
-# user.Recv('metadata')
- user.Recv()
+ user.Recv(recv_tp)

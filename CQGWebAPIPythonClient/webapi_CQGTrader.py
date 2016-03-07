@@ -90,8 +90,8 @@ class CQGTrader:
           print('实时市场数据订阅')
         self._connection.send(client_msg.SerializeToString(),websocket.ABNF.OPCODE_BINARY) 
 
-    def Recv(self):#从队列中取数据
-        recv_tp = input("receive metadata or position?\n")
+    def Recv(self,recv_tp):#从队列中取数据
+        #recv_tp = input("receive metadata or position?\n")
         if recv_tp == 'metadata':#元数据
            data = metadata_queue.get()
         if recv_tp == 'position':#持仓
@@ -109,25 +109,25 @@ class CQGTrader:
            server_msg.ParseFromString(data)
            for position_status in server_msg.position_status:
             # position_queue.put("subscription_id:\n"+position_status.subscription_id)
-             position_queue.put("subscription_id:\n")
+             position_queue.put('subscription_id:')
              position_queue.put(position_status.subscription_id)
-             position_queue.put("is_snapshot:\n")
+             position_queue.put('is_snapshot:')
              position_queue.put(position_status.is_snapshot)
-             position_queue.put("account_id:\n")
+             position_queue.put('account_id:')
              position_queue.put(position_status.account_id)
-             position_queue.put("contract_id:\n")
+             position_queue.put('contract_id:')
              position_queue.put(position_status.contract_id)
              for open_position in position_status.open_position:
-               position_queue.put("open_position:\n")
+               position_queue.put('open_position:')
                position_queue.put(open_position)
           # print('position')
            for information_report in server_msg.information_report:
-             metadata_queue.put('id:\n')
+             metadata_queue.put('id:')
              metadata_queue.put(information_report.id)
-             metadata_queue.put('status_code:\n')
+             metadata_queue.put('status_code:')
              metadata_queue.put(information_report.status_code)
              metadata = information_report.symbol_resolution_report.contract_metadata
-             metadata_queue.put('metadata:\n')
+             metadata_queue.put('metadata:')
              metadata_queue.put(metadata)
             # print('metadata')
          
